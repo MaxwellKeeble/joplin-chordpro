@@ -37,7 +37,7 @@ export function parseChordPro(
     const firstLines = content.split('\n').slice(0, 10);
     const hasCDirective = firstLines.some(line => line.includes('{c:'));
     if (hasCDirective) {
-      console.log('Found {c:} directive in input content');
+      // console.log('Found {c:} directive in input content');
     }
 
     // Convert legacy chord formats before parsing

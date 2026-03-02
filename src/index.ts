@@ -16,6 +16,61 @@ async function updateDynamicCss() {
 	const sectionLabelBorderColor = await joplin.settings.value('chordpro.sectionLabelBorderColor');
 	const autoDetect = await joplin.settings.value('chordpro.autoDetect');
 
+	let sectionStyles = '';
+	const sectionTypes = ['verse', 'chorus', 'bridge', 'tab'];
+	for (const sec of sectionTypes) {
+		const showHeader = await joplin.settings.value(`chordpro.${sec}ShowHeader`);
+		const headerColor = await joplin.settings.value(`chordpro.${sec}HeaderColor`);
+		const fontColor = await joplin.settings.value(`chordpro.${sec}FontColor`);
+		const secFontSize = await joplin.settings.value(`chordpro.${sec}FontSize`);
+		const borderEnabled = await joplin.settings.value(`chordpro.${sec}BorderEnabled`);
+		const borderColor = await joplin.settings.value(`chordpro.${sec}BorderColor`);
+		const backgroundColor = await joplin.settings.value(`chordpro.${sec}BackgroundColor`);
+
+		sectionStyles += `
+		.section-${sec} {
+			${backgroundColor !== 'transparent' ? `background-color: ${backgroundColor};` : ''}
+			${fontColor !== 'inherit' && fontColor ? `--chordpro-lyrics-color: ${fontColor}; color: var(--chordpro-lyrics-color);` : ''}
+			${secFontSize > 0 ? `font-size: ${secFontSize}px;` : ''}
+			${borderEnabled ? `
+			border-style: solid;
+			border-color: ${borderColor};
+			border-width: 1px 1px 1px 2px;
+			padding: 6px;
+			margin-bottom: 8px;` : ''}
+		}
+		${!showHeader ? `
+		.section-${sec} .section-label {
+			display: none !important;
+		}` : ''}
+		${headerColor !== 'inherit' && headerColor ? `
+		.section-${sec} .section-label {
+			color: ${headerColor} !important;
+		}` : ''}
+		`;
+	}
+
+	const commentSec = 'comment';
+	const commFontColor = await joplin.settings.value(`chordpro.${commentSec}FontColor`);
+	const commFontSize = await joplin.settings.value(`chordpro.${commentSec}FontSize`);
+	const commBorderEnabled = await joplin.settings.value(`chordpro.${commentSec}BorderEnabled`);
+	const commBorderColor = await joplin.settings.value(`chordpro.${commentSec}BorderColor`);
+	const commBackgroundColor = await joplin.settings.value(`chordpro.${commentSec}BackgroundColor`);
+
+	sectionStyles += `
+	.section-${commentSec} {
+		${commBackgroundColor !== 'transparent' ? `background-color: ${commBackgroundColor};` : ''}
+		${commFontColor !== 'inherit' && commFontColor ? `--chordpro-lyrics-color: ${commFontColor}; color: var(--chordpro-lyrics-color);` : ''}
+		${commFontSize > 0 ? `font-size: ${commFontSize}px;` : ''}
+		${commBorderEnabled ? `
+		border-style: solid;
+		border-color: ${commBorderColor};
+		border-width: 1px 1px 1px 2px;
+		padding: 6px;
+		margin-bottom: 8px;` : ''}
+	}
+	`;
+
 	const displayStyle = useInlineChords ? 'inline-block' : 'block';
 
 	const cssContent = `
@@ -65,6 +120,8 @@ async function updateDynamicCss() {
 			font-weight: inherit;
 		}
 
+		${sectionStyles}
+
 		${useInlineChords ? `
 		.chord-line-container {
 			display: inline;
@@ -111,7 +168,13 @@ joplin.plugins.register({
 			iconName: 'fas fa-guitar',
 		});
 
-		await joplin.settings.registerSettings({
+		await joplin.settings.registerSection('chordproFormatSettings', {
+			label: 'ChordPro Formatting',
+			iconName: 'fas fa-palette',
+			description: 'Customize the appearance of individual ChordPro sections.',
+		});
+
+		const settingsParams: Record<string, any> = {
 			'chordpro.chordColor': {
 				value: '#E8612E',
 				type: SettingItemType.String,
@@ -195,7 +258,53 @@ joplin.plugins.register({
 				label: 'Auto-detect ChordPro Files',
 				description: 'Automatically render files containing ChordPro directives even if they are not inside a ```chordpro block (unless Markdown is also present).',
 			}
-		});
+		};
+
+		const sections = ['verse', 'chorus', 'bridge', 'tab'];
+		for (const sec of sections) {
+			const capitalized = sec.charAt(0).toUpperCase() + sec.slice(1);
+			settingsParams[`chordpro.${sec}ShowHeader`] = {
+				value: true, type: SettingItemType.Bool, section: 'chordproFormatSettings', public: true, label: `[${capitalized}] Show Header`
+			};
+			settingsParams[`chordpro.${sec}HeaderColor`] = {
+				value: 'inherit', type: SettingItemType.String, section: 'chordproFormatSettings', public: true, label: `[${capitalized}] Header Color`
+			};
+			settingsParams[`chordpro.${sec}FontSize`] = {
+				value: 0, type: SettingItemType.Int, section: 'chordproFormatSettings', public: true, label: `[${capitalized}] Font Size (0=inherit)`
+			};
+			settingsParams[`chordpro.${sec}FontColor`] = {
+				value: 'inherit', type: SettingItemType.String, section: 'chordproFormatSettings', public: true, label: `[${capitalized}] Font Color`
+			};
+			settingsParams[`chordpro.${sec}BorderEnabled`] = {
+				value: false, type: SettingItemType.Bool, section: 'chordproFormatSettings', public: true, label: `[${capitalized}] Enable Border`
+			};
+			settingsParams[`chordpro.${sec}BorderColor`] = {
+				value: 'currentColor', type: SettingItemType.String, section: 'chordproFormatSettings', public: true, label: `[${capitalized}] Border Color`
+			};
+			settingsParams[`chordpro.${sec}BackgroundColor`] = {
+				value: 'transparent', type: SettingItemType.String, section: 'chordproFormatSettings', public: true, label: `[${capitalized}] Background Color`
+			};
+		}
+
+		// Comments don't have headers
+		const commentSec = 'comment';
+		settingsParams[`chordpro.${commentSec}FontSize`] = {
+			value: 0, type: SettingItemType.Int, section: 'chordproFormatSettings', public: true, label: `[Comment] Font Size (0=inherit)`
+		};
+		settingsParams[`chordpro.${commentSec}FontColor`] = {
+			value: 'inherit', type: SettingItemType.String, section: 'chordproFormatSettings', public: true, label: `[Comment] Font Color`
+		};
+		settingsParams[`chordpro.${commentSec}BorderEnabled`] = {
+			value: false, type: SettingItemType.Bool, section: 'chordproFormatSettings', public: true, label: `[Comment] Enable Border`
+		};
+		settingsParams[`chordpro.${commentSec}BorderColor`] = {
+			value: 'currentColor', type: SettingItemType.String, section: 'chordproFormatSettings', public: true, label: `[Comment] Border Color`
+		};
+		settingsParams[`chordpro.${commentSec}BackgroundColor`] = {
+			value: 'transparent', type: SettingItemType.String, section: 'chordproFormatSettings', public: true, label: `[Comment] Background Color`
+		};
+
+		await joplin.settings.registerSettings(settingsParams);
 
 		// Generate initial CSS
 		await updateDynamicCss();

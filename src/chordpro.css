@@ -61,3 +61,25 @@
     font-weight: bold;
     text-transform: uppercase;
 }
+
+/* CodeMirror 6 Syntax Highlighting */
+.cm-chordpro-directive {
+    color: var(--chordpro-chord-color, #a0a0a0);
+    opacity: 0.8;
+}
+
+.cm-chordpro-chord {
+    color: var(--chordpro-chord-color, var(--joplin-url-color)) !important;
+    font-weight: bold;
+}
+
+.cm-chordpro-comment {
+    color: #888888;
+    font-style: italic;
+}
+
+.cm-chordpro-section {
+    color: var(--joplin-color);
+    font-weight: bold;
+    text-transform: uppercase;
+}

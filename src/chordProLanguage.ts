@@ -1,6 +1,7 @@
 import { StreamLanguage, LanguageSupport } from '@codemirror/language';
 import { CompletionContext, autocompletion } from '@codemirror/autocomplete';
 import { snippet } from '@codemirror/autocomplete';
+import { ViewPlugin, Decoration, MatchDecorator, DecorationSet, ViewUpdate } from '@codemirror/view';
 
 export function chordProLanguage() {
     const chordProStreamParser = StreamLanguage.define({
@@ -246,6 +247,35 @@ export function chordProAutocomplete() {
         ]
     })
 }
+
+const directiveDeco = Decoration.mark({ class: 'cm-chordpro-directive' });
+const chordDeco = Decoration.mark({ class: 'cm-chordpro-chord' });
+const commentDeco = Decoration.mark({ class: 'cm-chordpro-comment' });
+const sectionDeco = Decoration.mark({ class: 'cm-chordpro-section' });
+
+const chordProDecorator = new MatchDecorator({
+    regexp: /\{[^}]+\}|\[[^\]]+\]|^#.*|^(Verse|Chorus|Bridge|Intro|Outro|Solo|Tab|Grid)[ \t]*:/gim,
+    decoration: (match) => {
+        const text = match[0];
+        if (text.startsWith('{')) return directiveDeco;
+        if (text.startsWith('[')) return chordDeco;
+        if (text.startsWith('#')) return commentDeco;
+        return sectionDeco;
+    }
+});
+
+export const chordProHighlighter = ViewPlugin.fromClass(class {
+    decorations: DecorationSet;
+    constructor(view: any) {
+        this.decorations = chordProDecorator.createDeco(view);
+    }
+    update(update: ViewUpdate) {
+        this.decorations = chordProDecorator.updateDeco(update, this.decorations);
+    }
+}, {
+    decorations: v => v.decorations
+});
+
 
 export default function (context: any) {
     return {

@@ -160,7 +160,7 @@ export function parseChordPro(
               }
               metadata.customChords.push(chordDef);
             } else {
-              console.warn('Skipped invalid chord definition:', value, chordDef);
+              // console.warn('Skipped invalid chord definition:', value, chordDef);
             }
             processedAnyDirective = true;
             continue;
@@ -268,8 +268,8 @@ export function parseChordPro(
 
     return result;
   } catch (error) {
-    console.error('Error parsing ChordPro content:', error);
-    console.error('Content that caused error:', content);
+    // console.error('Error parsing ChordPro content:', error);
+    // console.error('Content that caused error:', content);
     // Return a safe fallback result
     return {
       metadata: {},
@@ -756,7 +756,7 @@ function parseDefineDirective(value: string): CustomChordDefinition | null {
 
   const parts = value.trim().split(/\s+/);
   if (parts.length < 2) {
-    console.warn(`Invalid define directive: "${value}" - not enough parts`);
+    // console.warn(`Invalid define directive: "${value}" - not enough parts`);
     return null;
   }
 
@@ -808,7 +808,7 @@ function parseDefineDirective(value: string): CustomChordDefinition | null {
 
   // Ensure we have fret data
   if (frets.length === 0) {
-    console.warn(`No fret data found in define directive: "${value}"`);
+    // console.warn(`No fret data found in define directive: "${value}"`);
     return null;
   }
 
@@ -887,8 +887,8 @@ export function convertLegacyChordsToDefine(content: string): string {
 
     return updatedContent;
   } catch (error) {
-    console.error('Error converting legacy chords:', error);
-    console.error('Content that caused error:', content);
+    // console.error('Error converting legacy chords:', error);
+    // console.error('Content that caused error:', content);
     // Return original content as fallback
     return content;
   }

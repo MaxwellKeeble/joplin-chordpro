@@ -31,7 +31,7 @@ async function updateDynamicCss() {
 		.section-${sec} {
 			${backgroundColor !== 'transparent' ? `background-color: ${backgroundColor};` : ''}
 			${fontColor !== 'inherit' && fontColor ? `--chordpro-lyrics-color: ${fontColor}; color: var(--chordpro-lyrics-color);` : ''}
-			${secFontSize > 0 ? `font-size: ${secFontSize}px;` : ''}
+			${secFontSize !== 'inherit' && secFontSize ? `font-size: ${secFontSize};` : ''}
 			${borderEnabled ? `
 			border-style: solid;
 			border-color: ${borderColor};
@@ -61,7 +61,7 @@ async function updateDynamicCss() {
 	.section-${commentSec} {
 		${commBackgroundColor !== 'transparent' ? `background-color: ${commBackgroundColor};` : ''}
 		${commFontColor !== 'inherit' && commFontColor ? `--chordpro-lyrics-color: ${commFontColor}; color: var(--chordpro-lyrics-color);` : ''}
-		${commFontSize > 0 ? `font-size: ${commFontSize}px;` : ''}
+		${commFontSize !== 'inherit' && commFontSize ? `font-size: ${commFontSize};` : ''}
 		${commBorderEnabled ? `
 		border-style: solid;
 		border-color: ${commBorderColor};
@@ -78,17 +78,20 @@ async function updateDynamicCss() {
 			--chordpro-chord-color: ${chordColor};
 			--chordpro-lyrics-color: ${lyricsColor};
 			--chordpro-font-family: ${fontFamily};
-			--chordpro-font-size: ${fontSize}px;
+			--chordpro-font-size: ${fontSize};
 			--chordpro-columns: ${columns};
 			--chordpro-section-label-weight: ${sectionLabelWeight};
 			--chordpro-section-label-color: ${sectionLabelColor};
 		}
 		
-		.chordpro-container {
-			font-family: var(--chordpro-font-family);
+		.chordpro-song {
 			font-size: var(--chordpro-font-size);
 			column-count: var(--chordpro-columns);
 			column-gap: 2rem;
+		}
+
+		.chordpro-song .section {
+			font-family: var(--chordpro-font-family);
 		}
 		
 		.chordpro-chord, .chord-inline, .chord {
@@ -161,8 +164,6 @@ async function updateDynamicCss() {
 
 joplin.plugins.register({
 	onStart: async function () {
-		console.log('Chordpro plugin started');
-
 		await joplin.settings.registerSection('chordproSettings', {
 			label: 'ChordPro options',
 			iconName: 'fas fa-guitar',
@@ -227,11 +228,12 @@ joplin.plugins.register({
 				label: 'Font Family',
 			},
 			'chordpro.fontSize': {
-				value: 16,
-				type: SettingItemType.Int,
+				value: 'inherit',
+				type: SettingItemType.String,
 				section: 'chordproFormatSettings',
 				public: true,
-				label: 'Font Size (px)',
+				label: 'Font Size',
+				description: 'Font size (e.g. 16px, 1.2em, inherit)',
 			},
 			'chordpro.sectionLabelWeight': {
 				value: 'bold',
@@ -277,7 +279,7 @@ joplin.plugins.register({
 				value: 'inherit', type: SettingItemType.String, section: 'chordproFormatSettings', public: true, label: `[${capitalized}] Header Color`
 			};
 			settingsParams[`chordpro.${sec}FontSize`] = {
-				value: 0, type: SettingItemType.Int, section: 'chordproFormatSettings', public: true, label: `[${capitalized}] Font Size (0=inherit)`
+				value: 'inherit', type: SettingItemType.String, section: 'chordproFormatSettings', public: true, label: `[${capitalized}] Font Size`
 			};
 			settingsParams[`chordpro.${sec}FontColor`] = {
 				value: 'inherit', type: SettingItemType.String, section: 'chordproFormatSettings', public: true, label: `[${capitalized}] Font Color`
@@ -296,13 +298,13 @@ joplin.plugins.register({
 		// Comments don't have headers
 		const commentSec = 'comment';
 		settingsParams[`chordpro.${commentSec}FontSize`] = {
-			value: 0, type: SettingItemType.Int, section: 'chordproFormatSettings', public: true, label: `[Comment] Font Size (0=inherit)`
+			value: 'inherit', type: SettingItemType.String, section: 'chordproFormatSettings', public: true, label: `[Comment] Font Size`
 		};
 		settingsParams[`chordpro.${commentSec}FontColor`] = {
 			value: 'inherit', type: SettingItemType.String, section: 'chordproFormatSettings', public: true, label: `[Comment] Font Color`
 		};
 		settingsParams[`chordpro.${commentSec}BorderEnabled`] = {
-			value: false, type: SettingItemType.Bool, section: 'chordproFormatSettings', public: true, label: `[Comment] Enable Border`
+			value: true, type: SettingItemType.Bool, section: 'chordproFormatSettings', public: true, label: `[Comment] Enable Border`
 		};
 		settingsParams[`chordpro.${commentSec}BorderColor`] = {
 			value: 'currentColor', type: SettingItemType.String, section: 'chordproFormatSettings', public: true, label: `[Comment] Border Color`

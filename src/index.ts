@@ -164,45 +164,27 @@ joplin.plugins.register({
 		console.log('Chordpro plugin started');
 
 		await joplin.settings.registerSection('chordproSettings', {
-			label: 'ChordPro Renderer',
+			label: 'ChordPro options',
 			iconName: 'fas fa-guitar',
 		});
 
 		await joplin.settings.registerSection('chordproFormatSettings', {
-			label: 'ChordPro Formatting',
+			label: 'ChordPro styles',
 			iconName: 'fas fa-palette',
 			description: 'Customize the appearance of individual ChordPro sections.',
 		});
 
 		const settingsParams: Record<string, any> = {
-			'chordpro.chordColor': {
-				value: '#E8612E',
-				type: SettingItemType.String,
+			// ============================================
+			// 1. General Options (chordproSettings)
+			// ============================================
+			'chordpro.autoDetect': {
+				value: true,
+				type: SettingItemType.Bool,
 				section: 'chordproSettings',
 				public: true,
-				label: 'Chord Color',
-				description: 'Color of the chords (e.g., #E8612E, red, etc.)',
-			},
-			'chordpro.lyricsColor': {
-				value: 'inherit',
-				type: SettingItemType.String,
-				section: 'chordproSettings',
-				public: true,
-				label: 'Lyrics Color',
-			},
-			'chordpro.fontFamily': {
-				value: 'monospace',
-				type: SettingItemType.String,
-				section: 'chordproSettings',
-				public: true,
-				label: 'Font Family',
-			},
-			'chordpro.fontSize': {
-				value: 16,
-				type: SettingItemType.Int,
-				section: 'chordproSettings',
-				public: true,
-				label: 'Font Size (px)',
+				label: 'Auto-detect ChordPro Files',
+				description: 'Automatically render files containing ChordPro directives even if they are not inside a ```chordpro block (unless Markdown is also present).',
 			},
 			'chordpro.useInlineChords': {
 				value: false,
@@ -218,10 +200,43 @@ joplin.plugins.register({
 				public: true,
 				label: 'Columns (for grid layout)',
 			},
+
+			// ============================================
+			// 2. Styling Options (chordproFormatSettings)
+			// ============================================
+			'chordpro.chordColor': {
+				value: '#E8612E',
+				type: SettingItemType.String,
+				section: 'chordproFormatSettings',
+				public: true,
+				label: 'Chord Color',
+				description: 'Color of the chords (e.g., #E8612E, red, etc.)',
+			},
+			'chordpro.lyricsColor': {
+				value: 'inherit',
+				type: SettingItemType.String,
+				section: 'chordproFormatSettings',
+				public: true,
+				label: 'Lyrics Color',
+			},
+			'chordpro.fontFamily': {
+				value: 'monospace',
+				type: SettingItemType.String,
+				section: 'chordproFormatSettings',
+				public: true,
+				label: 'Font Family',
+			},
+			'chordpro.fontSize': {
+				value: 16,
+				type: SettingItemType.Int,
+				section: 'chordproFormatSettings',
+				public: true,
+				label: 'Font Size (px)',
+			},
 			'chordpro.sectionLabelWeight': {
 				value: 'bold',
 				type: SettingItemType.String,
-				section: 'chordproSettings',
+				section: 'chordproFormatSettings',
 				public: true,
 				label: 'Section Label Font Weight',
 				description: 'Font weight of section labels (e.g., normal, bold, 900)',
@@ -229,7 +244,7 @@ joplin.plugins.register({
 			'chordpro.sectionLabelColor': {
 				value: 'inherit',
 				type: SettingItemType.String,
-				section: 'chordproSettings',
+				section: 'chordproFormatSettings',
 				public: true,
 				label: 'Section Label Color',
 				description: 'Color of the section label text',
@@ -237,7 +252,7 @@ joplin.plugins.register({
 			'chordpro.sectionLabelBorder': {
 				value: false,
 				type: SettingItemType.Bool,
-				section: 'chordproSettings',
+				section: 'chordproFormatSettings',
 				public: true,
 				label: 'Enable Section Border',
 				description: 'Display a border around the entire section',
@@ -245,19 +260,11 @@ joplin.plugins.register({
 			'chordpro.sectionLabelBorderColor': {
 				value: 'currentColor',
 				type: SettingItemType.String,
-				section: 'chordproSettings',
+				section: 'chordproFormatSettings',
 				public: true,
 				label: 'Section Border Color',
 				description: 'Color of the section border (if enabled)',
 			},
-			'chordpro.autoDetect': {
-				value: true,
-				type: SettingItemType.Bool,
-				section: 'chordproSettings',
-				public: true,
-				label: 'Auto-detect ChordPro Files',
-				description: 'Automatically render files containing ChordPro directives even if they are not inside a ```chordpro block (unless Markdown is also present).',
-			}
 		};
 
 		const sections = ['verse', 'chorus', 'bridge', 'tab'];

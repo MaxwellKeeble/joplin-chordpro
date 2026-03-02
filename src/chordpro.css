@@ -1,0 +1,49 @@
+.chordpro-container {
+    background-color: var(--joplin-background-color);
+    color: var(--joplin-color);
+    font-family: var(--joplin-font-family);
+    padding: 10px;
+}
+
+.chordpro-line {
+    display: flex;
+    flex-wrap: wrap;
+    margin-bottom: 0.5em;
+}
+
+.chordpro-pair {
+    display: flex;
+    flex-direction: column;
+    margin-right: 0.2em; /* Space between words */
+}
+
+/* 
+ * A pair without a chord is just a lyric.
+ * A pair with a chord has the chord above the lyric.
+ */
+
+.chordpro-chord {
+    font-weight: bold;
+    color: var(--joplin-url-color); /* You can use a specific color or a Joplin variable */
+    min-height: 1.2em; /* Ensure space even if there's no lyric under it, or vice versa */
+    font-size: 0.9em;
+}
+
+.chordpro-lyric {
+    min-height: 1.2em;
+    white-space: pre; /* preserve spaces in lyrics if any */
+}
+
+.chordpro-directive {
+    font-weight: bold;
+    font-style: italic;
+    margin-bottom: 0.5em;
+    display: block;
+}
+
+.chordpro-title {
+    font-size: 1.5em;
+    font-weight: bold;
+    margin-bottom: 1em;
+    display: block;
+}

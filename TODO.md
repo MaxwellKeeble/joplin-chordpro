@@ -1,0 +1,2 @@
+Transposition: Add a button to the Joplin toolbar that sends a message to the content script to shift all detected chords by a certain number of semitones.
+

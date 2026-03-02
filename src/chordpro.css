@@ -14,7 +14,8 @@
 .chordpro-pair {
     display: flex;
     flex-direction: column;
-    margin-right: 0.2em; /* Space between words */
+    margin-right: 0.2em;
+    /* Space between words */
 }
 
 /* 
@@ -24,14 +25,17 @@
 
 .chordpro-chord {
     font-weight: bold;
-    color: var(--joplin-url-color); /* You can use a specific color or a Joplin variable */
-    min-height: 1.2em; /* Ensure space even if there's no lyric under it, or vice versa */
+    color: var(--joplin-url-color);
+    /* You can use a specific color or a Joplin variable */
+    min-height: 1.2em;
+    /* Ensure space even if there's no lyric under it, or vice versa */
     font-size: 0.9em;
 }
 
 .chordpro-lyric {
     min-height: 1.2em;
-    white-space: pre; /* preserve spaces in lyrics if any */
+    white-space: pre;
+    /* preserve spaces in lyrics if any */
 }
 
 .chordpro-directive {
@@ -46,4 +50,14 @@
     font-weight: bold;
     margin-bottom: 1em;
     display: block;
+}
+
+.song-artist {
+    font-style: italic;
+    margin-bottom: 1em;
+}
+
+.section-title {
+    font-weight: bold;
+    text-transform: uppercase;
 }

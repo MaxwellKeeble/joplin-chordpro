@@ -1,5 +1,6 @@
 {
 	"extraScripts": [
-		"markdownItChordPro.ts"
+		"markdownItChordPro.ts",
+		"codeMirrorPlugin.ts"
 	]
 }

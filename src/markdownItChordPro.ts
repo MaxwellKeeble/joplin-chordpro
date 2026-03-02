@@ -8,6 +8,34 @@ module.exports = {
 
 				// --- 1. Auto-detect pure ChordPro files ---
 				markdownIt.core.ruler.before('normalize', 'chordpro_auto_detect', function (state: any) {
+					console.log("ChordPro auto-detect started. Text length:", state.src ? state.src.length : 0);
+					let autoDetectEnabled = true;
+
+					try {
+						// In Joplin, the Markdown-It plugin runs in a web-view context which might not have `fs`.
+						// It also might. If it doesn't, caching the failure might be required, but a try/catch
+						// around require('fs') should protect the renderer from crashing completely.
+						const fs = require('fs');
+						const path = require('path');
+						const settingsPath = path.join(__dirname, 'chordpro-settings.json');
+
+						if (fs.existsSync(settingsPath)) {
+							const settingsStr = fs.readFileSync(settingsPath, 'utf8');
+							const settings = JSON.parse(settingsStr);
+							if (settings.autoDetect === false) {
+								autoDetectEnabled = false;
+							}
+						}
+					} catch (e) {
+						// Ignored, fallback to auto-detect being true if settings parsing/reading fails.
+						console.log("Could not read chordpro-settings", e);
+					}
+
+					if (!autoDetectEnabled) {
+						console.log("ChordPro auto-detect disabled via settings.");
+						return; // Auto-detect disabled by user settings!
+					}
+
 					const text = state.src;
 					if (!text) return;
 
@@ -25,10 +53,13 @@ module.exports = {
 						/^\s*>\s/m.test(text) ||
 						/^```/m.test(text);
 
+					console.log("ChordPro tags:", hasChordPro, "Markdown tags:", hasMarkdown);
+
 					if (hasChordPro && !hasMarkdown) {
 						// It seems to be entirely chordpro. Wrap it in a chordpro code block so the renderer picks it up.
 						// We don't want to double wrap if it's already wrapped, but `hasMarkdown` check above 
 						// ensures `hasMarkdown` is true if ` ``` ` exists, so it won't execute if already wrapped.
+						console.log("Auto-detect wrapping in code block.");
 						state.src = '```chordpro\n' + text + '\n```';
 					}
 				});

@@ -4,7 +4,7 @@
 	"app_min_version": "3.5",
 	"version": "1.0.0",
 	"name": "Chordpro",
-	"description": "Renders chordpro",
+	"description": "Renders chordpro in preview, and provides syntax highlighting for chordpro files in the Joplin markdown editor.",
 	"author": "Max Keeble",
 	"homepage_url": "",
 	"repository_url": "",

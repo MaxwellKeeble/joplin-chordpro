@@ -10,6 +10,11 @@ async function updateDynamicCss() {
 	const fontSize = await joplin.settings.value('chordpro.fontSize');
 	const columns = await joplin.settings.value('chordpro.columns');
 	const useInlineChords = await joplin.settings.value('chordpro.useInlineChords');
+	const sectionLabelWeight = await joplin.settings.value('chordpro.sectionLabelWeight');
+	const sectionLabelColor = await joplin.settings.value('chordpro.sectionLabelColor');
+	const sectionLabelBorder = await joplin.settings.value('chordpro.sectionLabelBorder');
+	const sectionLabelBorderColor = await joplin.settings.value('chordpro.sectionLabelBorderColor');
+	const autoDetect = await joplin.settings.value('chordpro.autoDetect');
 
 	const displayStyle = useInlineChords ? 'inline-block' : 'block';
 
@@ -20,6 +25,8 @@ async function updateDynamicCss() {
 			--chordpro-font-family: ${fontFamily};
 			--chordpro-font-size: ${fontSize}px;
 			--chordpro-columns: ${columns};
+			--chordpro-section-label-weight: ${sectionLabelWeight};
+			--chordpro-section-label-color: ${sectionLabelColor};
 		}
 		
 		.chordpro-container {
@@ -36,6 +43,26 @@ async function updateDynamicCss() {
 		
 		.chordpro-lyric, .lyrics-line {
 			color: var(--chordpro-lyrics-color);
+		}
+
+		.section-label {
+			font-weight: var(--chordpro-section-label-weight);
+			color: var(--chordpro-section-label-color);
+		}
+
+		/* Apply border only to named sections, excluding standard verses, comments, and unnamed text */
+		.section:not(.section-verse):not(.section-comment):not(.section-text):not(.section-grid) {
+			${sectionLabelBorder ? `
+			border-style: solid;
+			border-color: ${sectionLabelBorderColor};
+			border-width: 1px 1px 1px 2px;
+			padding: 6px;
+			margin-bottom: 8px;` : ''}
+		}
+
+		/* Optional overrides to ensure section-title respects the label settings */
+		.section-title {
+			font-weight: inherit;
 		}
 
 		${useInlineChords ? `
@@ -67,8 +94,12 @@ async function updateDynamicCss() {
 		`}
 	`;
 
-	const cssPath = path.join(__dirname, 'chordpro-dynamic.css');
+	const installationDir = await joplin.plugins.installationDir();
+	const cssPath = path.join(installationDir, 'chordpro-dynamic.css');
 	fs.writeFileSync(cssPath, cssContent, 'utf8');
+
+	const settingsPath = path.join(installationDir, 'chordpro-settings.json');
+	fs.writeFileSync(settingsPath, JSON.stringify({ autoDetect }), 'utf8');
 }
 
 joplin.plugins.register({
@@ -123,6 +154,46 @@ joplin.plugins.register({
 				section: 'chordproSettings',
 				public: true,
 				label: 'Columns (for grid layout)',
+			},
+			'chordpro.sectionLabelWeight': {
+				value: 'bold',
+				type: SettingItemType.String,
+				section: 'chordproSettings',
+				public: true,
+				label: 'Section Label Font Weight',
+				description: 'Font weight of section labels (e.g., normal, bold, 900)',
+			},
+			'chordpro.sectionLabelColor': {
+				value: 'inherit',
+				type: SettingItemType.String,
+				section: 'chordproSettings',
+				public: true,
+				label: 'Section Label Color',
+				description: 'Color of the section label text',
+			},
+			'chordpro.sectionLabelBorder': {
+				value: false,
+				type: SettingItemType.Bool,
+				section: 'chordproSettings',
+				public: true,
+				label: 'Enable Section Border',
+				description: 'Display a border around the entire section',
+			},
+			'chordpro.sectionLabelBorderColor': {
+				value: 'currentColor',
+				type: SettingItemType.String,
+				section: 'chordproSettings',
+				public: true,
+				label: 'Section Border Color',
+				description: 'Color of the section border (if enabled)',
+			},
+			'chordpro.autoDetect': {
+				value: true,
+				type: SettingItemType.Bool,
+				section: 'chordproSettings',
+				public: true,
+				label: 'Auto-detect ChordPro Files',
+				description: 'Automatically render files containing ChordPro directives even if they are not inside a ```chordpro block (unless Markdown is also present).',
 			}
 		});
 
@@ -136,11 +207,18 @@ joplin.plugins.register({
 			}
 		});
 
-		// Register the content script
+		// Register the markdownIt plugin
 		await joplin.contentScripts.register(
 			ContentScriptType.MarkdownItPlugin,
 			'chordproRender',
 			'./markdownItChordPro.js'
+		);
+
+		// Register the CodeMirror plugin
+		await joplin.contentScripts.register(
+			ContentScriptType.CodeMirrorPlugin,
+			'chordproCodeMirror',
+			'./codeMirrorPlugin.js'
 		);
 	},
 });
